@@ -1,0 +1,18 @@
+# Dataset files
+data/
+
+# Python virtual environments
+.venv/
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Other model formats
+*.h5
+*.pt
+# TensorBoard event logs
+results/events.out.tfevents.*
+# Ignore all TensorBoard logs
+results/logs/

@@ -1,0 +1,1159 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FaceSense — Read the Expression</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+    --ink: #242039;
+    --muted: #858198;
+    --purple: #8972ee;
+    --pink: #f3a6c8;
+    --lavender: #eeeaff;
+    --surface: #ffffff;
+    --line: #eeeaf5;
+    --bg: #faf8ff;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: "DM Sans", sans-serif;
+    color: var(--ink);
+    background:
+        radial-gradient(ellipse at 8% 5%, #f1eaff 0, transparent 30%),
+        radial-gradient(ellipse at 95% 25%, #ffeaf3 0, transparent 27%),
+        var(--bg);
+    min-height: 100vh;
+}
+
+button {
+    font: inherit;
+}
+
+header {
+    height: 76px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 7%;
+    border-bottom: 1px solid #eeeaf5;
+    background: rgba(255,255,255,.76);
+    backdrop-filter: blur(16px);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    font-family: "Space Grotesk", sans-serif;
+    font-weight: 700;
+    font-size: 22px;
+}
+
+.brand-icon {
+    width: 38px;
+    height: 38px;
+    display: grid;
+    place-items: center;
+    border-radius: 13px;
+    color: white;
+    background: linear-gradient(135deg, #8298e2, #a9bdd4);
+    box-shadow: 0 5px 15px #a48af044;
+}
+
+.brand span {
+    color: var(--purple);
+}
+
+.header-tag {
+    background: #f0ebff;
+    color: #8069dc;
+    padding: 9px 15px;
+    border-radius: 30px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.container {
+    max-width: 1250px;
+    margin: auto;
+    padding: 65px 25px 45px;
+}
+
+.hero {
+    text-align: center;
+    margin-bottom: 43px;
+}
+
+.eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: white;
+    border: 1px solid var(--line);
+    padding: 8px 15px;
+    border-radius: 30px;
+    color: #8069dc;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .6px;
+    margin-bottom: 20px;
+}
+
+.sparkle {
+    color: #9aaccb;
+    font-size: 17px;
+}
+
+.hero h1 {
+    font-family: "Space Grotesk", sans-serif;
+    font-size: clamp(37px, 5vw, 60px);
+    line-height: 1.12;
+    letter-spacing: -2.5px;
+    font-weight: 700;
+    margin-bottom: 17px;
+}
+
+.gradient-text {
+    background: linear-gradient(100deg, #7189d8, #9aaecb);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.hero p {
+    max-width: 540px;
+    margin: auto;
+    color: var(--muted);
+    line-height: 1.8;
+    font-size: 15px;
+}
+
+.dashboard {
+    display: grid;
+    grid-template-columns: 1.15fr .85fr;
+    gap: 24px;
+    align-items: stretch;
+}
+
+.card {
+    background: rgba(255,255,255,.91);
+    border: 1px solid rgba(231,224,245,.9);
+    border-radius: 25px;
+    padding: 27px;
+    box-shadow: 0 12px 40px rgba(70,49,120,.055);
+    min-width: 0;
+}
+
+.card-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    gap: 10px;
+}
+
+.card-heading h2 {
+    font-family: "Space Grotesk", sans-serif;
+    font-size: 19px;
+}
+
+.live-badge {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #8a75dc;
+    background: #f2efff;
+    padding: 8px 12px;
+    border-radius: 30px;
+}
+
+.live-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #a48af5;
+}
+
+.live-dot.active {
+    background: #48c995;
+    box-shadow: 0 0 0 4px #48c99522;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    50% { box-shadow: 0 0 0 7px #48c99508; }
+}
+
+.camera-frame {
+    background: #211f31;
+    border-radius: 19px;
+    overflow: hidden;
+    position: relative;
+    min-height: 250px;
+    aspect-ratio: 4 / 3;
+    display: grid;
+    place-items: center;
+}
+
+video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    inset: 0;
+    transform: scaleX(-1);
+}
+
+.camera-placeholder {
+    color: #d9d1ed;
+    text-align: center;
+    padding: 25px;
+    position: relative;
+    z-index: 1;
+}
+
+.camera-placeholder .camera-icon {
+    font-size: 48px;
+    margin-bottom: 13px;
+}
+
+.camera-placeholder p {
+    font-size: 14px;
+    color: #b9b1d0;
+}
+
+.camera-corner {
+    position: absolute;
+    width: 35px;
+    height: 35px;
+    border-color: #d7c7ff;
+    border-style: solid;
+    z-index: 2;
+    opacity: .8;
+}
+
+.top-left {
+    top: 15px;
+    left: 15px;
+    border-width: 2px 0 0 2px;
+    border-radius: 8px 0 0;
+}
+
+.top-right {
+    top: 15px;
+    right: 15px;
+    border-width: 2px 2px 0 0;
+    border-radius: 0 8px 0 0;
+}
+
+.bottom-left {
+    bottom: 15px;
+    left: 15px;
+    border-width: 0 0 2px 2px;
+    border-radius: 0 0 0 8px;
+}
+
+.bottom-right {
+    bottom: 15px;
+    right: 15px;
+    border-width: 0 2px 2px 0;
+    border-radius: 0 0 8px;
+}
+
+.controls {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.btn {
+    padding: 13px 21px;
+    border-radius: 13px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 700;
+    transition: .2s ease;
+}
+
+.btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+}
+
+.btn-primary {
+    color: white;
+    background: linear-gradient(110deg, #8d75ef, #b08bed);
+    box-shadow: 0 7px 18px #9479e83b;
+}
+
+.btn-stop {
+    color: #766b91;
+    background: #f1eff7;
+}
+
+.btn:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.status {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-top: 17px;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    background: #c3bdcf;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.status-dot.active {
+    background: #48c995;
+}
+
+.result-box {
+    background: linear-gradient(135deg, rgba(220,228,247,.42), rgba(238,243,249,.32));
+    border: 1px solid #eee6ff;
+    border-radius: 20px;
+    padding: 25px 18px;
+    text-align: center;
+    margin-bottom: 26px;
+}
+
+.emotion-emoji {
+    font-size: 58px;
+    line-height: 1;
+    margin: 2px auto 15px;
+    display: inline-block;
+    filter: drop-shadow(0 8px 12px rgba(137,114,238,.16));
+    animation: emojiFloat 3s ease-in-out infinite;
+    transform-origin: center;
+}
+
+.emotion-emoji.pop {
+    animation: emojiPop .55s cubic-bezier(.2,.85,.25,1.25);
+}
+
+@keyframes emojiFloat {
+    0%, 100% { transform: translateY(0) rotate(-3deg); }
+    50% { transform: translateY(-8px) rotate(3deg); }
+}
+
+@keyframes emojiPop {
+    0% { transform: scale(.45) rotate(-18deg); opacity: .35; }
+    65% { transform: scale(1.22) rotate(8deg); opacity: 1; }
+    100% { transform: scale(1) rotate(0); opacity: 1; }
+}
+
+.emotion-emoji.happy-pop {
+    animation: happyPop .85s cubic-bezier(.2,.9,.25,1.25);
+}
+
+@keyframes happyPop {
+    0% { transform: scale(.2) rotate(-25deg); opacity: 0; }
+    45% { transform: scale(1.45) rotate(12deg); opacity: 1; }
+    65% { transform: scale(.9) rotate(-6deg); }
+    82% { transform: scale(1.12) rotate(4deg); }
+    100% { transform: scale(1) rotate(0); }
+}
+
+.footer-sparkle {
+    color: #a18bea;
+    display: inline-block;
+    animation: sparkleTurn 5s linear infinite;
+}
+
+@keyframes sparkleTurn {
+    to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .emotion-emoji, .emotion-emoji.pop, .footer-sparkle {
+        animation: none !important;
+    }
+}
+
+.result-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #9186ad;
+    font-weight: 700;
+}
+
+#emotion {
+    font-family: "Space Grotesk", sans-serif;
+    font-size: clamp(28px, 4vw, 38px);
+    font-weight: 700;
+    color: #826ce0;
+    margin: 12px 0 7px;
+}
+
+#confidence {
+    font-size: 13px;
+    color: #9186ad;
+}
+
+.probability-heading {
+    font-family: "Space Grotesk", sans-serif;
+    font-size: 17px;
+    margin-bottom: 19px;
+}
+
+.bar-row {
+    margin: 16px 0;
+}
+
+.bar-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.bar-label span:last-child {
+    color: #938ba5;
+    font-size: 12px;
+}
+
+.bar-bg {
+    height: 8px;
+    background: #f0edf6;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.bar-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 20px;
+    background: linear-gradient(90deg, #8298e2, #a9bdd4);
+    transition: width .45s ease;
+}
+
+.note {
+    background: #fff9ed;
+    border: 1px solid #f6ecd8;
+    color: #9a835b;
+    border-radius: 13px;
+    padding: 13px 15px;
+    margin-top: 22px;
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+footer {
+    text-align: center;
+    padding: 35px 20px;
+    color: #a39bb2;
+    font-size: 12px;
+}
+
+footer strong {
+    color: #8874d4;
+}
+
+
+/* Light / dark theme toggle */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 9px 13px;
+    background: var(--surface);
+    color: var(--ink);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: .25s ease;
+}
+.theme-toggle:hover { transform: translateY(-2px); }
+
+body.dark-theme {
+    --ink: #f3efff;
+    --muted: #aaa2bf;
+    --purple: #b5a2ff;
+    --pink: #f4a9d0;
+    --lavender: #29243b;
+    --surface: #211e30;
+    --line: #39334d;
+    --bg: #171522;
+    background:
+        radial-gradient(ellipse at 8% 5%, #302747 0, transparent 32%),
+        radial-gradient(ellipse at 95% 25%, #382437 0, transparent 28%),
+        var(--bg);
+}
+
+body.dark-theme header {
+    background: rgba(29,26,43,.82);
+    border-bottom-color: var(--line);
+}
+body.dark-theme .header-tag {
+    background: #332b4c;
+    color: #c6b8ff;
+}
+body.dark-theme .eyebrow {
+    background: #252137;
+    border-color: var(--line);
+    color: #c6b8ff;
+}
+body.dark-theme .card {
+    background: rgba(34,30,49,.94);
+    border-color: #39334d;
+    box-shadow: 0 12px 40px rgba(0,0,0,.18);
+}
+body.dark-theme .live-badge {
+    color: #c6b8ff;
+    background: #302a47;
+}
+body.dark-theme .result-box {
+    background: linear-gradient(135deg, #302945, #3a293d);
+    border-color: #493a5b;
+}
+body.dark-theme #emotion { color: #c2b2ff; }
+body.dark-theme #confidence,
+body.dark-theme .result-label { color: #b1a7c9; }
+body.dark-theme .bar-bg { background: #39334b; }
+body.dark-theme .bar-label span:last-child { color: #b1a7c9; }
+body.dark-theme .note {
+    background: #332d27;
+    border-color: #514332;
+    color: #dfc69b;
+}
+body.dark-theme .btn-stop {
+    background: #39334b;
+    color: #e0d8f4;
+}
+body.dark-theme .status { color: #aaa2bf; }
+body.dark-theme footer { color: #aaa2bf; }
+body.dark-theme .theme-toggle {
+    background: #302a43;
+    border-color: #49415f;
+    color: #f3efff;
+}
+body.dark-theme .gradient-text {
+    background: linear-gradient(100deg, #b7a4ff, #f2a9d0);
+    -webkit-background-clip: text;
+    background-clip: text;
+}
+@media(max-width: 500px) {
+    .header-actions { gap: 6px; }
+    .theme-toggle { padding: 8px 10px; font-size: 11px; }
+    .header-tag { display: none; }
+}
+
+@media(max-width: 850px) {
+    .dashboard {
+        grid-template-columns: 1fr;
+    }
+
+    .container {
+        padding-top: 42px;
+    }
+}
+
+@media(max-width: 500px) {
+    header {
+        padding: 0 5%;
+    }
+
+    .brand {
+        font-size: 19px;
+    }
+
+    .header-tag {
+        font-size: 10px;
+    }
+
+    .container {
+        padding: 35px 15px;
+    }
+
+    .card {
+        padding: 19px;
+        border-radius: 19px;
+    }
+
+    .hero h1 {
+        letter-spacing: -1.5px;
+    }
+
+    .controls .btn {
+        flex: 1;
+        padding: 12px 10px;
+    }
+}
+
+/* TRUE GLASSMORPHISM: blurred background visible THROUGH translucent panels */
+body {
+    isolation: isolate;
+    position: relative;
+    overflow-x: hidden;
+    background:
+        radial-gradient(circle at 12% 18%, #c9d4ff 0, transparent 30%),
+        radial-gradient(circle at 88% 22%, #dce5f2 0, transparent 28%),
+        radial-gradient(circle at 55% 85%, #c3d8e8 0, transparent 30%),
+        linear-gradient(135deg, #e9edf5, #f4f6fa 55%, #e6edf4);
+    background-attachment: fixed;
+}
+
+body::before,
+body::after {
+    content: "";
+    position: fixed;
+    z-index: -1;
+    width: 340px;
+    height: 340px;
+    border-radius: 50%;
+    filter: blur(65px);
+    opacity: .62;
+    pointer-events: none;
+    animation: glassBlobFloat 13s ease-in-out infinite alternate;
+}
+body::before {
+    background: #b9a1ff;
+    top: 12%;
+    left: -115px;
+}
+body::after {
+    background: #b9cbdc;
+    right: -120px;
+    bottom: 8%;
+    animation-delay: -6s;
+}
+@keyframes glassBlobFloat {
+    from { transform: translate3d(0, 0, 0) scale(1); }
+    to { transform: translate3d(35px, -28px, 0) scale(1.13); }
+}
+
+header {
+    background: rgba(255,255,255,.24) !important;
+    border-bottom: 1px solid rgba(255,255,255,.55) !important;
+    backdrop-filter: blur(24px) saturate(170%);
+    -webkit-backdrop-filter: blur(24px) saturate(170%);
+    box-shadow: 0 8px 32px rgba(70,45,120,.07);
+}
+
+.header-tag,
+.eyebrow,
+.live-badge,
+.theme-toggle {
+    background: rgba(255,255,255,.34) !important;
+    border: 1px solid rgba(255,255,255,.72) !important;
+    backdrop-filter: blur(18px) saturate(160%);
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.55),
+                0 8px 24px rgba(87,65,140,.08);
+}
+
+.card {
+    background: rgba(255,255,255,.22) !important;
+    border: 1px solid rgba(255,255,255,.68) !important;
+    backdrop-filter: blur(26px) saturate(175%);
+    -webkit-backdrop-filter: blur(26px) saturate(175%);
+    box-shadow: 0 18px 55px rgba(73,52,125,.13),
+                inset 0 1px 0 rgba(255,255,255,.72),
+                inset 0 -1px 0 rgba(255,255,255,.16);
+    position: relative;
+    overflow: hidden;
+}
+.card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(135deg, rgba(255,255,255,.25), transparent 48%);
+    pointer-events: none;
+}
+.card > * {
+    position: relative;
+    z-index: 1;
+}
+
+.result-box {
+    background: rgba(255,255,255,.30) !important;
+    border: 1px solid rgba(255,255,255,.7) !important;
+    backdrop-filter: blur(22px) saturate(170%);
+    -webkit-backdrop-filter: blur(22px) saturate(170%);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.7),
+                0 10px 30px rgba(116,91,170,.08);
+}
+
+.note {
+    background: rgba(255,250,237,.38) !important;
+    border: 1px solid rgba(255,255,255,.65) !important;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+}
+
+.camera-frame {
+    border: 1px solid rgba(255,255,255,.48);
+    box-shadow: 0 12px 35px rgba(30,20,55,.18),
+                inset 0 1px 0 rgba(255,255,255,.25);
+}
+
+.btn {
+    box-shadow: 0 8px 22px rgba(100,75,170,.16);
+}
+
+footer {
+    text-shadow: 0 1px 12px rgba(255,255,255,.45);
+}
+
+/* Dark glass: same frosted-glass effect, with a deeper tinted surface */
+body.dark-theme {
+    background:
+        radial-gradient(circle at 12% 18%, #5a438e 0, transparent 30%),
+        radial-gradient(circle at 88% 22%, #804663 0, transparent 27%),
+        radial-gradient(circle at 55% 85%, #315b78 0, transparent 30%),
+        linear-gradient(135deg, #11101c, #1b1728 55%, #111a27) !important;
+    color: #f4efff;
+}
+body.dark-theme::before { background: #7457bd; opacity: .38; }
+body.dark-theme::after { background: #55758f; opacity: .32; }
+
+body.dark-theme header {
+    background: rgba(19,16,31,.34) !important;
+    border-bottom-color: rgba(255,255,255,.13) !important;
+}
+body.dark-theme .card {
+    background: rgba(30,25,47,.36) !important;
+    border-color: rgba(255,255,255,.19) !important;
+    box-shadow: 0 18px 55px rgba(0,0,0,.24),
+                inset 0 1px 0 rgba(255,255,255,.16);
+}
+body.dark-theme .card::before {
+    background: linear-gradient(135deg, rgba(255,255,255,.10), transparent 48%);
+}
+body.dark-theme .result-box {
+    background: rgba(105,82,145,.24) !important;
+    border-color: rgba(255,255,255,.18) !important;
+}
+body.dark-theme .header-tag,
+body.dark-theme .eyebrow,
+body.dark-theme .live-badge,
+body.dark-theme .theme-toggle {
+    background: rgba(255,255,255,.09) !important;
+    border-color: rgba(255,255,255,.18) !important;
+    color: #e2d7ff !important;
+}
+body.dark-theme .note {
+    background: rgba(125,103,65,.17) !important;
+    border-color: rgba(255,255,255,.15) !important;
+    color: #e5d3a8 !important;
+}
+body.dark-theme .card-heading h2,
+body.dark-theme .probability-heading,
+body.dark-theme .bar-label span:first-child {
+    color: #f5f0ff;
+}
+body.dark-theme .hero p,
+body.dark-theme .status { color: #c0b8d2; }
+body.dark-theme .bar-bg { background: rgba(255,255,255,.13); }
+body.dark-theme footer { color: #c0b8d2; }
+
+@media (prefers-reduced-motion: reduce) {
+    body::before, body::after { animation: none !important; }
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="brand">
+        <div class="brand-icon">✦</div>
+        Face<span>Sense</span>
+    </div>
+    <div class="header-actions">
+        <button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch to dark mode">
+            <span id="themeIcon">🌙</span>
+            <span id="themeText">Dark mode</span>
+        </button>
+        <div class="header-tag">✦ EXPRESSION STUDIO</div>
+    </div>
+</header>
+
+<main class="container">
+
+    <section class="hero">
+        <div class="eyebrow">
+            <span class="sparkle">✦</span>
+            A LITTLE MOMENT OF EXPRESSION
+        </div>
+
+        <h1>What's your face<br><span class="gradient-text">saying today?</span></h1>
+
+        <p>
+            Your expressions, captured in real time. Explore seven expression categories
+            with a little colour, personality and fun.
+        </p>
+    </section>
+
+    <section class="dashboard">
+
+        <div class="card">
+            <div class="card-heading">
+                <h2>📸 Live camera</h2>
+                <div class="live-badge">
+                    <span class="live-dot" id="liveDot"></span>
+                    <span id="liveLabel">OFFLINE</span>
+                </div>
+            </div>
+
+            <div class="camera-frame">
+                <div class="camera-placeholder" id="placeholder">
+                    <div class="camera-icon">📷</div>
+                    <p>Your camera moment goes here.</p>
+                    <p>Press Start Camera to begin.</p>
+                </div>
+
+                <video id="video" autoplay playsinline muted hidden></video>
+                <canvas id="canvas" hidden></canvas>
+
+                <div class="camera-corner top-left"></div>
+                <div class="camera-corner top-right"></div>
+                <div class="camera-corner bottom-left"></div>
+                <div class="camera-corner bottom-right"></div>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-primary" id="startBtn">
+                    ✦ Start Camera
+                </button>
+                <button class="btn btn-stop" id="stopBtn" disabled>
+                    Stop Camera
+                </button>
+            </div>
+
+            <p class="status">
+                <span class="status-dot" id="statusDot"></span>
+                <span id="status">Camera is currently stopped.</span>
+            </p>
+        </div>
+
+        <div class="card">
+            <div class="card-heading">
+                <h2>🪄 Your expression</h2>
+                <span class="sparkle">✧</span>
+            </div>
+
+            <div class="result-box">
+                <div class="emotion-emoji" id="emotionEmoji" aria-live="polite">✨</div>
+                <p class="result-label">YOUR EXPRESSION</p>
+                <div id="emotion">Waiting...</div>
+                <p id="confidence">Confidence: --</p>
+            </div>
+
+            <h3 class="probability-heading">Emotion breakdown ✦</h3>
+
+            <div id="bars"></div>
+
+            <div class="note">
+                ✦ These predictions are estimates based on visible facial
+                expressions. They do not establish what a person is actually
+                feeling.
+            </div>
+        </div>
+
+    </section>
+</main>
+
+<footer>
+    <span class="footer-sparkle">✦</span> FaceSense · A little window into expressions
+</footer>
+
+<script>
+
+// Theme switcher: remembers the selected theme on this browser.
+const themeToggle = document.getElementById("themeToggle");
+const themeIcon = document.getElementById("themeIcon");
+const themeText = document.getElementById("themeText");
+
+function applyTheme(theme) {
+    const isDark = theme === "dark";
+    document.body.classList.toggle("dark-theme", isDark);
+    themeIcon.textContent = isDark ? "☀️" : "🌙";
+    themeText.textContent = isDark ? "Light mode" : "Dark mode";
+    themeToggle.setAttribute(
+        "aria-label",
+        isDark ? "Switch to light mode" : "Switch to dark mode"
+    );
+}
+
+const savedTheme = localStorage.getItem("facesense-theme") || "light";
+applyTheme(savedTheme);
+
+themeToggle.addEventListener("click", () => {
+    const nextTheme = document.body.classList.contains("dark-theme") ? "light" : "dark";
+    localStorage.setItem("facesense-theme", nextTheme);
+    applyTheme(nextTheme);
+});
+
+const video = document.getElementById("video");
+const canvas = document.getElementById("canvas");
+const startBtn = document.getElementById("startBtn");
+const stopBtn = document.getElementById("stopBtn");
+const statusText = document.getElementById("status");
+const statusDot = document.getElementById("statusDot");
+const liveDot = document.getElementById("liveDot");
+const liveLabel = document.getElementById("liveLabel");
+const placeholder = document.getElementById("placeholder");
+
+const emotionElement = document.getElementById("emotion");
+const emotionEmoji = document.getElementById("emotionEmoji");
+
+const emotionEmojis = {
+    Angry: "😤",
+    Disgust: "🤢",
+    Fear: "😨",
+    Happy: "🥰",
+    Sad: "🥺",
+    Surprise: "😲",
+    Neutral: "😌"
+};
+
+let lastEmotion = "";
+const confidenceElement = document.getElementById("confidence");
+const barsElement = document.getElementById("bars");
+
+const emotions = [
+    "Angry", "Disgust", "Fear", "Happy",
+    "Sad", "Surprise", "Neutral"
+];
+
+let cameraStream = null;
+let analysisTimer = null;
+let busy = false;
+
+function setStatus(message, active = false) {
+    statusText.textContent = message;
+    statusDot.classList.toggle("active", active);
+    liveDot.classList.toggle("active", active);
+    liveLabel.textContent = active ? "LIVE NOW" : "OFFLINE";
+}
+
+function createBars() {
+    barsElement.innerHTML = "";
+
+    emotions.forEach(name => {
+        const row = document.createElement("div");
+        row.className = "bar-row";
+
+        const label = document.createElement("div");
+        label.className = "bar-label";
+
+        const nameSpan = document.createElement("span");
+        nameSpan.textContent = name;
+
+        const valueSpan = document.createElement("span");
+        valueSpan.id = "value-" + name;
+        valueSpan.textContent = "0%";
+
+        label.append(nameSpan, valueSpan);
+
+        const background = document.createElement("div");
+        background.className = "bar-bg";
+
+        const fill = document.createElement("div");
+        fill.className = "bar-fill";
+        fill.id = "bar-" + name;
+
+        background.appendChild(fill);
+        row.append(label, background);
+        barsElement.appendChild(row);
+    });
+}
+
+function resetResults() {
+    emotionElement.textContent = "Waiting...";
+    confidenceElement.textContent = "Confidence: --";
+    emotionEmoji.textContent = "✨";
+    emotionEmoji.classList.remove("pop", "happy-pop");
+    lastEmotion = "";
+    createBars();
+}
+
+function updateEmotionEmoji(emotion) {
+    const nextEmoji = emotionEmojis[emotion] || "✨";
+
+    if (emotion !== lastEmotion) {
+        emotionEmoji.textContent = nextEmoji;
+        emotionEmoji.classList.remove("pop", "happy-pop");
+        // Restart the animation only when the predicted category changes.
+        void emotionEmoji.offsetWidth;
+        emotionEmoji.classList.add(emotion === "Happy" ? "happy-pop" : "pop");
+        lastEmotion = emotion;
+    }
+}
+
+createBars();
+
+async function startCamera() {
+    try {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            throw new Error("Camera access requires localhost or HTTPS.");
+        }
+
+        cameraStream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: "user" },
+            audio: false
+        });
+
+        video.srcObject = cameraStream;
+        video.hidden = false;
+        placeholder.hidden = true;
+
+        await video.play();
+
+        startBtn.disabled = true;
+        stopBtn.disabled = false;
+
+        setStatus("Camera active. Analysing expressions...", true);
+
+        analysisTimer = setInterval(sendFrame, 900);
+
+    } catch (error) {
+        setStatus("Camera error: " + error.message);
+        stopCamera();
+    }
+}
+
+async function sendFrame() {
+    if (busy || !cameraStream || video.videoWidth === 0) {
+        return;
+    }
+
+    busy = true;
+
+    try {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+
+        const context = canvas.getContext("2d");
+
+        context.save();
+        context.translate(canvas.width, 0);
+        context.scale(-1, 1);
+        context.drawImage(video, 0, 0);
+        context.restore();
+
+        const image = canvas.toDataURL("image/jpeg", 0.8);
+
+        const response = await fetch("/predict", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ image: image })
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.error || "Prediction failed");
+        }
+
+        if (!result.face_detected) {
+            emotionElement.textContent = "No face detected";
+            emotionEmoji.textContent = "👀";
+            emotionEmoji.classList.remove("pop", "happy-pop");
+            lastEmotion = "";
+            confidenceElement.textContent = "Confidence: --";
+            emotions.forEach(name => {
+                document.getElementById("bar-" + name).style.width = "0%";
+                document.getElementById("value-" + name).textContent = "0%";
+            });
+            return;
+        }
+
+        emotionElement.textContent = result.emotion;
+        updateEmotionEmoji(result.emotion);
+        confidenceElement.textContent =
+            "Confidence: " + (result.confidence * 100).toFixed(1) + "%";
+
+        emotions.forEach(name => {
+            const score = (result.probabilities[name] || 0) * 100;
+
+            document.getElementById("bar-" + name).style.width =
+                score + "%";
+
+            document.getElementById("value-" + name).textContent =
+                score.toFixed(1) + "%";
+        });
+
+    } catch (error) {
+        setStatus("Analysis error: " + error.message, true);
+    } finally {
+        busy = false;
+    }
+}
+
+function stopCamera() {
+    if (analysisTimer) {
+        clearInterval(analysisTimer);
+        analysisTimer = null;
+    }
+
+    if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+        cameraStream = null;
+    }
+
+    video.srcObject = null;
+    video.hidden = true;
+    placeholder.hidden = false;
+
+    startBtn.disabled = false;
+    stopBtn.disabled = true;
+
+    setStatus("Camera is currently stopped.");
+    resetResults();
+}
+
+startBtn.addEventListener("click", startCamera);
+stopBtn.addEventListener("click", stopCamera);
+
+window.addEventListener("beforeunload", stopCamera);
+</script>
+
+</body>
+</html>
