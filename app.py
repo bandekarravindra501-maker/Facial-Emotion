@@ -40,12 +40,15 @@ def predict():
             return jsonify({"error": "Invalid camera frame"}), 400
 
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        # Improve contrast for face detection
+        gray = cv2.equalizeHist(gray)
+
 
         faces = face_cascade.detectMultiScale(
             gray,
-            scaleFactor=1.1,
-            minNeighbors=8,
-            minSize=(80, 80)
+            scaleFactor=1.05,
+            minNeighbors=5,
+            minSize=(40, 40)
         )
 
         if len(faces) == 0:
